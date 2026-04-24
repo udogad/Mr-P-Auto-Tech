@@ -46,6 +46,9 @@ Note:
 - `npm run dev:full`: frontend + backend concurrently
 - `npm run build`: frontend build to `dist/`
 - `npm start`: backend server (serves `dist/` if present)
+- `./scripts/deploy-checklist.sh`: local pre-deploy checklist
+- `./scripts/smoke-check.sh`: live endpoint smoke checks
+- `./scripts/backup-db.sh`: database backup with retention
 
 ## Development URLs
 - Frontend: `http://localhost:5173`
@@ -70,6 +73,11 @@ Endpoint contracts, validation, statuses, and response shapes are in:
 ## Build and Deployment
 Production build, process manager setup, reverse proxy guidance, backup/restore, and runbook:
 - [Build, Deploy, and Operations Runbook](./docs/BUILD_DEPLOY_RUNBOOK.md)
+
+Production asset files:
+- PM2 config: [ecosystem.config.cjs](./ecosystem.config.cjs)
+- Nginx config template: [deploy/nginx/mrp-autotech.conf](./deploy/nginx/mrp-autotech.conf)
+- Scripts: [`scripts/`](./scripts)
 
 ## Data and Persistence
 Server-side persisted data:

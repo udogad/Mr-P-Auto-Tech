@@ -72,9 +72,12 @@ Optional optimization:
 - Build in CI/CD, deploy only `dist/` + runtime files + production dependencies.
 
 ## 5. PM2 Example
+Use committed config file:
+- `ecosystem.config.cjs`
+
 ```bash
 npm i -g pm2
-pm2 start npm --name mrp-autotech -- start
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
@@ -109,13 +112,21 @@ Then add TLS via Certbot/Caddy.
 Data file:
 - `server/data/db.json`
 
+Backup script:
+- `scripts/backup-db.sh`
+
 ### Backup
 - Copy this file regularly (hourly/daily based on traffic).
 - Keep at least off-server backups.
 
-Example cron backup command:
+Manual backup command:
 ```bash
-cp /path/to/project/server/data/db.json /path/to/backups/db-$(date +%F-%H%M).json
+./scripts/backup-db.sh
+```
+
+Cron backup example (daily at 02:10):
+```bash
+10 2 * * * cd /path/to/mrp-autotech && ./scripts/backup-db.sh >> /var/log/mrp-autotech-backup.log 2>&1
 ```
 
 ### Restore
@@ -134,16 +145,20 @@ cp /path/to/project/server/data/db.json /path/to/backups/db-$(date +%F-%H%M).jso
 
 ## 9. Release Checklist
 Before each release:
-1. `npm ci`
-2. `npm run build`
-3. smoke-check:
-   - `GET /api/health`
-   - login works
-   - booking submit works
-   - admin dashboard loads
-4. backup current `db.json`
-5. deploy
-6. verify live site and admin path
+1. Run pre-deploy checklist:
+```bash
+./scripts/deploy-checklist.sh
+```
+2. Backup current data:
+```bash
+./scripts/backup-db.sh
+```
+3. Deploy and restart process.
+4. Run live smoke check:
+```bash
+BASE_URL=https://example.com ADMIN_PASSWORD='your-password' ./scripts/smoke-check.sh
+```
+5. Verify live site and admin path manually.
 
 ## 10. Troubleshooting
 ### API returns 401 on admin requests
