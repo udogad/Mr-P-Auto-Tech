@@ -21,26 +21,38 @@ export default function AdminGallery() {
     return errs
   }
 
-  function handleAdd(e) {
+  async function handleAdd(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    addGalleryItem(form)
-    setForm({ url: '', title: '', category: 'Repairs' })
-    setErrors({})
-    setShowAdd(false)
-    showToast('Gallery photo added!')
+    try {
+      await addGalleryItem(form)
+      setForm({ url: '', title: '', category: 'Repairs' })
+      setErrors({})
+      setShowAdd(false)
+      showToast('Gallery photo added!')
+    } catch (error) {
+      showToast(error.message || 'Failed to add gallery photo.', 'error')
+    }
   }
 
-  function handleToggle(id, visible) {
-    updateGalleryItem(id, { visible: !visible })
-    showToast(`Photo ${!visible ? 'shown' : 'hidden'} on website`)
+  async function handleToggle(id, visible) {
+    try {
+      await updateGalleryItem(id, { visible: !visible })
+      showToast(`Photo ${!visible ? 'shown' : 'hidden'} on website`)
+    } catch (error) {
+      showToast(error.message || 'Failed to update photo visibility.', 'error')
+    }
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!confirm('Delete this gallery photo?')) return
-    deleteGalleryItem(id)
-    showToast('Photo deleted', 'error')
+    try {
+      await deleteGalleryItem(id)
+      showToast('Photo deleted', 'error')
+    } catch (error) {
+      showToast(error.message || 'Failed to delete photo.', 'error')
+    }
   }
 
   return (

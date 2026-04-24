@@ -11,7 +11,17 @@ import AdminSettings from './pages/admin/AdminSettings'
 import { useAdmin } from './context/SiteContext'
 
 function ProtectedRoute({ children }) {
-  const { isAdminLoggedIn } = useAdmin()
+  const { isAdminLoggedIn, isReady } = useAdmin()
+  if (!isReady) {
+    return (
+      <div className="admin-login">
+        <div className="admin-login__card">
+          <h2 className="admin-login__title" style={{ marginBottom: 8 }}>Loading…</h2>
+          <p className="admin-login__subtitle">Checking admin session.</p>
+        </div>
+      </div>
+    )
+  }
   return isAdminLoggedIn ? children : <Navigate to="/admin/login" replace />
 }
 

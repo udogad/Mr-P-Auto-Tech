@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useSite } from '../../context/SiteContext'
 
 const NAV_LINKS = [
   { href: '#services', label: 'Services' },
@@ -11,7 +9,6 @@ const NAV_LINKS = [
 ]
 
 export default function Navbar() {
-  const { settings } = useSite()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 

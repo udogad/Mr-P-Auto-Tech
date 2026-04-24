@@ -6,10 +6,12 @@ import RevealOnScroll from '../components/ui/RevealOnScroll'
 const INITIAL = { name: '', phone: '', subject: '', message: '' }
 
 export default function Contact() {
-  const { settings } = useSite()
+  const { settings, submitContactMessage } = useSite()
   const [form, setForm] = useState(INITIAL)
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const update = (f) => (e) => setForm(p => ({ ...p, [f]: e.target.value }))
 
@@ -20,11 +22,21 @@ export default function Contact() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setSubmitError('')
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    setSent(true)
+    try {
+      setSending(true)
+      await submitContactMessage(form)
+      setSent(true)
+      setErrors({})
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to send message right now.')
+    } finally {
+      setSending(false)
+    }
   }
 
   const waMsg = encodeURIComponent(
@@ -131,8 +143,9 @@ export default function Contact() {
                   <textarea value={form.message} onChange={update('message')} placeholder="How can we help you?" style={{ minHeight: 130 }} />
                   {errors.message && <div className="form-error">{errors.message}</div>}
                 </div>
-                <button type="submit" className="btn btn--primary btn--full btn--lg">
-                  Send Message →
+                {submitError && <div className="form-error" style={{ marginBottom: 10 }}>{submitError}</div>}
+                <button type="submit" className="btn btn--primary btn--full btn--lg" disabled={sending}>
+                  {sending ? 'Sending…' : 'Send Message →'}
                 </button>
               </form>
             ) : (

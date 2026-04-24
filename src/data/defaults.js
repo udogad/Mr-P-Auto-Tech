@@ -16,7 +16,6 @@ export const DEFAULT_SETTINGS = {
   instagram: '#',
   heroTitle: 'Precision Auto Engineering',
   heroSubtitle: 'Expert automobile engineering, diagnostics, repairs and fleet services you can trust. MR P Auto Tech Ltd — where quality meets reliability in Owerri.',
-  adminPassword: 'mrpauto2025',
   yearsExperience: '5',
   carsServiced: '1500',
   satisfaction: '98',

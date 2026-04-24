@@ -1,31 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSite } from '../../context/SiteContext'
 import { useToast } from '../../hooks/useToast'
 import Toast from '../../components/ui/Toast'
 
 export default function AdminSettings() {
-  const { settings, updateSettings } = useSite()
+  const { settings, updateSettings, changeAdminPassword } = useSite()
   const { toast, showToast } = useToast()
   const [form, setForm] = useState({ ...settings })
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' })
   const [pwError, setPwError] = useState('')
 
+  useEffect(() => {
+    setForm({ ...settings })
+  }, [settings])
+
   const update = (f) => (e) => setForm(p => ({ ...p, [f]: e.target.value }))
 
-  function saveSection(fields, label) {
+  async function saveSection(fields, label) {
     const partial = {}
     fields.forEach(f => { partial[f] = form[f] })
-    updateSettings(partial)
-    showToast(`${label} saved!`)
+    try {
+      await updateSettings(partial)
+      showToast(`${label} saved!`)
+    } catch (error) {
+      showToast(error.message || `Failed to save ${label.toLowerCase()}.`, 'error')
+    }
   }
 
-  function savePassword(e) {
+  async function savePassword(e) {
     e.preventDefault()
     setPwError('')
-    if (pwForm.current !== settings.adminPassword) {
-      setPwError('Current password is incorrect.')
-      return
-    }
     if (pwForm.newPw.length < 6) {
       setPwError('New password must be at least 6 characters.')
       return
@@ -34,9 +38,13 @@ export default function AdminSettings() {
       setPwError('New passwords do not match.')
       return
     }
-    updateSettings({ adminPassword: pwForm.newPw })
-    setPwForm({ current: '', newPw: '', confirm: '' })
-    showToast('Password updated successfully!')
+    try {
+      await changeAdminPassword(pwForm.current, pwForm.newPw)
+      setPwForm({ current: '', newPw: '', confirm: '' })
+      showToast('Password updated successfully!')
+    } catch (error) {
+      setPwError(error.message || 'Failed to update password.')
+    }
   }
 
   return (

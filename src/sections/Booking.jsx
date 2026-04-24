@@ -1,17 +1,6 @@
 import { useState } from 'react'
 import { useSite } from '../context/SiteContext'
-import SectionHeader from '../components/ui/SectionHeader'
 import RevealOnScroll from '../components/ui/RevealOnScroll'
-
-const SERVICES_LIST = [
-  'Car Repairs & Servicing',
-  'Advanced Diagnostics',
-  'Tyre & Wheel Services',
-  'Auto Parts Supply & Fitting',
-  'Fleet Management',
-  'Body Works & Paint',
-  'Other',
-]
 
 const STEPS = [
   { num: '1', title: 'Fill the form', desc: 'Tell us your vehicle details and preferred service date.' },
@@ -27,13 +16,19 @@ const INITIAL = {
 }
 
 export default function Booking() {
-  const { submitBooking, settings } = useSite()
+  const { submitBooking, settings, services } = useSite()
   const [form, setForm] = useState(INITIAL)
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [submittedData, setSubmittedData] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const today = new Date().toISOString().split('T')[0]
+  const serviceOptions = Array.from(new Set([
+    ...services.filter(s => s.visible).map(s => s.title),
+    'Other',
+  ]))
 
   const update = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }))
 
@@ -47,13 +42,22 @@ export default function Booking() {
     return errs
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setSubmitError('')
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    const booking = submitBooking({ ...form, name: `${form.firstName} ${form.lastName}` })
-    setSubmittedData(booking)
-    setSubmitted(true)
+    try {
+      setSubmitting(true)
+      const booking = await submitBooking({ ...form, name: `${form.firstName} ${form.lastName}` })
+      setSubmittedData(booking)
+      setSubmitted(true)
+      setErrors({})
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to submit booking right now.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   function buildWAMessage() {
@@ -147,7 +151,7 @@ export default function Booking() {
                   <label>Service Required *</label>
                   <select value={form.service} onChange={update('service')}>
                     <option value="">Select a service…</option>
-                    {SERVICES_LIST.map(s => <option key={s}>{s}</option>)}
+                    {serviceOptions.map(s => <option key={s}>{s}</option>)}
                   </select>
                   {errors.service && <div className="form-error">{errors.service}</div>}
                 </div>
@@ -157,8 +161,9 @@ export default function Booking() {
                   <textarea value={form.notes} onChange={update('notes')} placeholder="Describe the issue or anything we should know…" />
                 </div>
 
-                <button type="submit" className="btn btn--primary btn--full btn--lg">
-                  📅 Confirm Booking →
+                {submitError && <div className="form-error" style={{ marginBottom: 10 }}>{submitError}</div>}
+                <button type="submit" className="btn btn--primary btn--full btn--lg" disabled={submitting}>
+                  {submitting ? 'Submitting…' : '📅 Confirm Booking →'}
                 </button>
               </form>
             ) : (

@@ -1,123 +1,99 @@
 # MR P Auto Tech Ltd — Website
 
-A full production-grade React website for MR P Auto Tech Ltd, Owerri, Imo State.
+Production-ready React + Node.js website for MR P Auto Tech Ltd, with:
+- Public marketing site
+- Admin dashboard
+- Persistent server-side data storage
+- Token-based admin authentication
 
----
+## Tech Stack
+- Frontend: React + Vite
+- Backend API: Express
+- Persistence: File-backed JSON database (`server/data/db.json`)
+- Auth: JWT + bcrypt password hashing
 
-## Getting Started
-
-### Requirements
+## Requirements
 - Node.js v18+
 - npm v9+
 
-### Install & Run (Development)
+## Setup
+1. Install dependencies:
 ```bash
 npm install
+```
+
+2. Create environment file:
+```bash
+cp .env.example .env
+```
+
+3. Update secure values in `.env` before production:
+- `JWT_SECRET`
+- `ADMIN_PASSWORD`
+- `CORS_ORIGIN`
+
+## Run (Development)
+- Frontend only:
+```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173)
 
-### Build for Production
+- Backend API only:
+```bash
+npm run dev:api
+```
+
+- Frontend + backend together:
+```bash
+npm run dev:full
+```
+
+Frontend: `http://localhost:5173`  
+API: `http://localhost:8787`
+
+## Build Frontend
 ```bash
 npm run build
 ```
-The `dist/` folder contains all files to upload to your hosting provider.
 
----
-
-##  Admin Dashboard
-
-Visit: `yourwebsite.com/admin`
-
-**Default Login Password:** `mrpauto2025`
-
-> ⚠️ Change your password immediately after first login via Admin → Settings → Admin Password.
-
-### What you can manage from the dashboard:
-| Feature | Location |
-|---|---|
-| View & manage bookings | Admin → Bookings |
-| Upload gallery photos | Admin → Gallery |
-| Add / edit customer reviews | Admin → Testimonials |
-| Edit service cards | Admin → Services |
-| Update business info, stats, socials | Admin → Settings |
-| Change admin password | Admin → Settings |
-
----
-
-## 📁 Folder Structure
-
-```
-src/
-├── components/
-│   ├── layout/        # Navbar, Footer, WhatsAppFloat
-│   └── ui/            # RevealOnScroll, SectionHeader, Toast
-├── context/
-│   └── SiteContext.jsx  # Global state (settings, bookings, gallery…)
-├── data/
-│   └── defaults.js    # All default content
-├── hooks/
-│   ├── useCounter.js  # Animated number counters
-│   ├── useInView.js   # IntersectionObserver
-│   └── useToast.js    # Toast notifications
-├── pages/
-│   ├── Home.jsx       # Public home page
-│   └── admin/         # All admin pages
-├── sections/          # Hero, Services, About, Gallery, Booking…
-├── styles/
-│   └── index.css      # All global styles
-└── utils/
-    └── storage.js     # localStorage helpers
-```
-
----
-
-## 🌐 Deploying
-
-### Option A — Netlify (Recommended, Free)
-1. Run `npm run build`
-2. Go to [netlify.com](https://netlify.com) → drag & drop the `dist/` folder
-3. Your site is live instantly
-
-### Option B — Vercel
+## Run Backend (Production)
 ```bash
-npm install -g vercel
-vercel
+npm start
 ```
 
-### Option C — Traditional hosting (Whogohost, etc.)
-Upload everything inside the `dist/` folder to your `public_html/` directory.
+If `dist/` exists, the backend also serves the built frontend.
 
-> **Note:** For React Router to work on traditional hosting, add a `.htaccess` file with:
-> ```
-> RewriteEngine On
-> RewriteBase /
-> RewriteRule ^index\.html$ - [L]
-> RewriteCond %{REQUEST_FILENAME} !-f
-> RewriteCond %{REQUEST_FILENAME} !-d
-> RewriteRule . /index.html [L]
-> ```
+## Admin Access
+- URL: `/admin`
+- Default password (if unchanged): `mrpauto2025`
 
----
+Change the password immediately in `Admin -> Settings -> Admin Password`.
 
-##  Adding Real Photos (Gallery)
-1. Upload photos to [imgbb.com](https://imgbb.com) (free) or [Cloudinary](https://cloudinary.com)
-2. Copy the direct image URL
-3. Go to Admin → Gallery → Add Photo → paste URL
+## What Is Persisted
+Server-side data is persisted in `server/data/db.json`:
+- Bookings
+- Contact messages
+- Services
+- Gallery items
+- Testimonials
+- Site settings
+- Admin password hash
 
----
+## API Overview
+- Public:
+  - `GET /api/public/content`
+  - `POST /api/public/bookings`
+  - `POST /api/public/contact`
+- Admin:
+  - `POST /api/admin/login`
+  - `GET /api/admin/me`
+  - `GET /api/admin/bootstrap`
+  - CRUD endpoints for settings, services, testimonials, gallery, bookings
+  - `POST /api/admin/change-password`
 
-## ✅ Features Fixed 
-- ✅ Animated counters that actually work (not stuck at 0)
-- ✅ Real gallery slots — add your own photos
-- ✅ Fully working booking form with localStorage persistence
-- ✅ WhatsApp pre-fill on booking submission
-- ✅ All navigation links working
-- ✅ Real contact form
-- ✅ Admin dashboard for managing everything
-- ✅ Mobile responsive design
-- ✅ SEO meta tags
+## Deployment Notes
+- For production, run the backend (`npm start`) behind a process manager (PM2/systemd).
+- Use HTTPS and a reverse proxy (Nginx/Caddy).
+- Set a strong `JWT_SECRET` and `ADMIN_PASSWORD`.
+- Backup `server/data/db.json` regularly.
 
----
-
-Built with React + Vite. No backend required.

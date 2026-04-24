@@ -16,22 +16,34 @@ export default function AdminServices() {
     setForm({ icon: s.icon, title: s.title, description: s.description })
   }
 
-  function saveEdit(id) {
+  async function saveEdit(id) {
     if (!form.title?.trim()) return
-    updateService(id, form)
-    setEditing(null)
-    showToast('Service updated!')
+    try {
+      await updateService(id, form)
+      setEditing(null)
+      showToast('Service updated!')
+    } catch (error) {
+      showToast(error.message || 'Failed to update service.', 'error')
+    }
   }
 
-  function toggleVisible(id, visible) {
-    updateService(id, { visible: !visible })
-    showToast(`Service ${!visible ? 'shown' : 'hidden'} on website`)
+  async function toggleVisible(id, visible) {
+    try {
+      await updateService(id, { visible: !visible })
+      showToast(`Service ${!visible ? 'shown' : 'hidden'} on website`)
+    } catch (error) {
+      showToast(error.message || 'Failed to update service visibility.', 'error')
+    }
   }
 
-  function handleReset() {
+  async function handleReset() {
     if (!confirm('Reset all services to defaults? Your changes will be lost.')) return
-    resetServices()
-    showToast('Services reset to defaults')
+    try {
+      await resetServices()
+      showToast('Services reset to defaults')
+    } catch (error) {
+      showToast(error.message || 'Failed to reset services.', 'error')
+    }
   }
 
   const update = (f) => (e) => setForm(p => ({ ...p, [f]: e.target.value }))

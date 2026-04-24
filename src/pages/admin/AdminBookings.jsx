@@ -7,7 +7,6 @@ import Toast from '../../components/ui/Toast'
 const STATUSES = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']
 
 function BookingModal({ booking, onClose, onStatusChange }) {
-  const { settings } = useSite()
   const waMsg = encodeURIComponent(
     `Hello ${booking.name}, this is MR P Auto Tech. Your booking (${booking.id}) for ${booking.service} on ${booking.preferredDate} has been confirmed. Please contact us for any questions.`
   )
@@ -94,17 +93,27 @@ export default function AdminBookings() {
     return matchSearch && matchStatus
   })
 
-  function handleStatusChange(id, status) {
-    changeBookingStatus(id, status)
-    if (selected?.id === id) setSelected(p => ({ ...p, status }))
-    showToast(`Booking status updated to ${STATUS_LABELS[status]?.label}`)
+  async function handleStatusChange(id, status) {
+    try {
+      const updated = await changeBookingStatus(id, status)
+      if (selected?.id === id) {
+        setSelected((prev) => updated || { ...prev, status })
+      }
+      showToast(`Booking status updated to ${STATUS_LABELS[status]?.label}`)
+    } catch (error) {
+      showToast(error.message || 'Failed to update booking status.', 'error')
+    }
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!confirm('Delete this booking? This cannot be undone.')) return
-    removeBooking(id)
-    if (selected?.id === id) setSelected(null)
-    showToast('Booking deleted', 'error')
+    try {
+      await removeBooking(id)
+      if (selected?.id === id) setSelected(null)
+      showToast('Booking deleted', 'error')
+    } catch (error) {
+      showToast(error.message || 'Failed to delete booking.', 'error')
+    }
   }
 
   return (

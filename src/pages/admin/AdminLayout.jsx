@@ -14,8 +14,8 @@ function Sidebar() {
   const { adminLogout } = useAdmin()
   const navigate = useNavigate()
 
-  function handleLogout() {
-    adminLogout()
+  async function handleLogout() {
+    await adminLogout()
     navigate('/admin/login')
   }
 

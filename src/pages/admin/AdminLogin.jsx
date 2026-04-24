@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAdmin } from '../../context/SiteContext'
 
 export default function AdminLogin() {
-  const { adminLogin, isAdminLoggedIn } = useAdmin()
+  const { adminLogin, isAdminLoggedIn, isReady, bootError } = useAdmin()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -11,21 +11,25 @@ export default function AdminLogin() {
 
   useEffect(() => {
     if (isAdminLoggedIn) navigate('/admin', { replace: true })
-  }, [isAdminLoggedIn])
+  }, [isAdminLoggedIn, navigate])
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    if (!isReady) return
     setLoading(true)
     setError('')
-    setTimeout(() => {
-      const ok = adminLogin(password)
+    try {
+      const ok = await adminLogin(password)
       if (ok) {
         navigate('/admin', { replace: true })
       } else {
         setError('Incorrect password. Please try again.')
-        setLoading(false)
       }
-    }, 600)
+    } catch (err) {
+      setError(err.message || 'Unable to login right now.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -42,6 +46,7 @@ export default function AdminLogin() {
         <h2 className="admin-login__title">ADMIN PANEL</h2>
         <p className="admin-login__subtitle">Enter your password to access the dashboard</p>
 
+        {bootError && <div className="admin-login__error">⚠️ {bootError}</div>}
         {error && <div className="admin-login__error">⚠️ {error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -58,7 +63,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             className="btn btn--primary btn--full btn--lg"
-            disabled={loading || !password}
+            disabled={loading || !password || !isReady}
             style={{ marginTop: 8, opacity: loading ? 0.7 : 1 }}
           >
             {loading ? 'Authenticating…' : '🔐 Login to Dashboard'}
@@ -66,7 +71,7 @@ export default function AdminLogin() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: 'var(--ash)' }}>
-          Default password: <code style={{ color: 'var(--green-light)', background: 'rgba(22,163,74,0.1)', padding: '2px 8px', borderRadius: 4 }}>mrpauto2025</code>
+          Default password: <code style={{ color: 'var(--green-light)', background: 'rgba(22,163,74,0.1)', padding: '2px 8px', borderRadius: 4 }}>ADMIN_PASSWORD</code> (fallback: <code style={{ color: 'var(--green-light)', background: 'rgba(22,163,74,0.1)', padding: '2px 8px', borderRadius: 4 }}>mrpauto2025</code>)
           <br />
           <span style={{ marginTop: 4, display: 'block' }}>Change it in Settings after first login.</span>
         </p>

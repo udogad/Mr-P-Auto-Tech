@@ -5,3 +5,4 @@ dist/
 .env.*
 !.env.example
 .codex
+server/data/db.json

@@ -30,30 +30,42 @@ export default function AdminTestimonials() {
     setShowAdd(true)
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
-    if (editing) {
-      updateTestimonial(editing, form)
-      showToast('Review updated!')
-    } else {
-      addTestimonial(form)
-      showToast('Review added to website!')
+    try {
+      if (editing) {
+        await updateTestimonial(editing, form)
+        showToast('Review updated!')
+      } else {
+        await addTestimonial(form)
+        showToast('Review added to website!')
+      }
+      setShowAdd(false)
+      setEditing(null)
+    } catch (error) {
+      showToast(error.message || 'Failed to save review.', 'error')
     }
-    setShowAdd(false)
-    setEditing(null)
   }
 
-  function handleToggle(id, visible) {
-    updateTestimonial(id, { visible: !visible })
-    showToast(`Review ${!visible ? 'published' : 'hidden'}`)
+  async function handleToggle(id, visible) {
+    try {
+      await updateTestimonial(id, { visible: !visible })
+      showToast(`Review ${!visible ? 'published' : 'hidden'}`)
+    } catch (error) {
+      showToast(error.message || 'Failed to update review visibility.', 'error')
+    }
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!confirm('Delete this review?')) return
-    deleteTestimonial(id)
-    showToast('Review deleted', 'error')
+    try {
+      await deleteTestimonial(id)
+      showToast('Review deleted', 'error')
+    } catch (error) {
+      showToast(error.message || 'Failed to delete review.', 'error')
+    }
   }
 
   return (
