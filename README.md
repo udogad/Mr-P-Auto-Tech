@@ -1,99 +1,91 @@
 # MR P Auto Tech Ltd — Website
 
-Production-ready React + Node.js website for MR P Auto Tech Ltd, with:
+Production-ready React + Node.js website for MR P Auto Tech Ltd.
+
+Core capabilities:
 - Public marketing site
 - Admin dashboard
-- Persistent server-side data storage
-- Token-based admin authentication
+- Persistent server-side storage
+- JWT-based admin authentication
 
-## Tech Stack
+## Documentation Map
+If you need full technical coverage, use these docs:
+- [Documentation Index](./docs/README.md)
+- [Feature Flows](./docs/FEATURE_FLOWS.md)
+- [API Reference](./docs/API_REFERENCE.md)
+- [Build, Deploy, and Operations Runbook](./docs/BUILD_DEPLOY_RUNBOOK.md)
+
+## Stack
 - Frontend: React + Vite
-- Backend API: Express
-- Persistence: File-backed JSON database (`server/data/db.json`)
-- Auth: JWT + bcrypt password hashing
+- Backend: Express
+- Persistence: JSON file database (`server/data/db.json`)
+- Auth: bcrypt + JWT
 
 ## Requirements
 - Node.js v18+
 - npm v9+
 
 ## Setup
-1. Install dependencies:
 ```bash
 npm install
-```
-
-2. Create environment file:
-```bash
 cp .env.example .env
 ```
 
-3. Update secure values in `.env` before production:
+Before production, set secure values in `.env`:
 - `JWT_SECRET`
 - `ADMIN_PASSWORD`
 - `CORS_ORIGIN`
 
-## Run (Development)
-- Frontend only:
-```bash
-npm run dev
-```
+Note:
+- `ADMIN_PASSWORD` is only used when the data file is first created.
+- After first boot, use Admin Settings to rotate password.
 
-- Backend API only:
-```bash
-npm run dev:api
-```
+## Scripts
+- `npm run dev`: frontend (Vite)
+- `npm run dev:api`: backend API
+- `npm run dev:full`: frontend + backend concurrently
+- `npm run build`: frontend build to `dist/`
+- `npm start`: backend server (serves `dist/` if present)
 
-- Frontend + backend together:
-```bash
-npm run dev:full
-```
+## Development URLs
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8787`
 
-Frontend: `http://localhost:5173`  
-API: `http://localhost:8787`
+## Feature Coverage
+Documented end-to-end feature flows include:
+- Public content load
+- Booking submission
+- Contact message submission
+- Admin login/session validation
+- Admin dashboard bootstrap
+- Admin CRUD for bookings, services, gallery, testimonials, settings
+- Admin password rotation
 
-## Build Frontend
-```bash
-npm run build
-```
+See full details in [Feature Flows](./docs/FEATURE_FLOWS.md).
 
-## Run Backend (Production)
-```bash
-npm start
-```
+## API
+Endpoint contracts, validation, statuses, and response shapes are in:
+- [API Reference](./docs/API_REFERENCE.md)
 
-If `dist/` exists, the backend also serves the built frontend.
+## Build and Deployment
+Production build, process manager setup, reverse proxy guidance, backup/restore, and runbook:
+- [Build, Deploy, and Operations Runbook](./docs/BUILD_DEPLOY_RUNBOOK.md)
 
-## Admin Access
-- URL: `/admin`
-- Default password (if unchanged): `mrpauto2025`
-
-Change the password immediately in `Admin -> Settings -> Admin Password`.
-
-## What Is Persisted
-Server-side data is persisted in `server/data/db.json`:
+## Data and Persistence
+Server-side persisted data:
+- Settings
+- Services
+- Testimonials
+- Gallery
 - Bookings
 - Contact messages
-- Services
-- Gallery items
-- Testimonials
-- Site settings
 - Admin password hash
 
-## API Overview
-- Public:
-  - `GET /api/public/content`
-  - `POST /api/public/bookings`
-  - `POST /api/public/contact`
-- Admin:
-  - `POST /api/admin/login`
-  - `GET /api/admin/me`
-  - `GET /api/admin/bootstrap`
-  - CRUD endpoints for settings, services, testimonials, gallery, bookings
-  - `POST /api/admin/change-password`
+Storage location (default):
+- `server/data/db.json`
 
-## Deployment Notes
-- For production, run the backend (`npm start`) behind a process manager (PM2/systemd).
-- Use HTTPS and a reverse proxy (Nginx/Caddy).
-- Set a strong `JWT_SECRET` and `ADMIN_PASSWORD`.
-- Backup `server/data/db.json` regularly.
-
+## Security Notes
+- Change default admin password immediately.
+- Use strong `JWT_SECRET` in production.
+- Run behind HTTPS reverse proxy.
+- Backup `db.json` regularly.
